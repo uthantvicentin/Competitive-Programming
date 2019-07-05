@@ -1,89 +1,76 @@
 #include <bits/stdc++.h>
-using namespace std; 
+#define IOS ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL);
 
-#define MAXN 1000000 
-#define SQRSIZE 316
+using namespace std;
 
-int diff;
-int cont;
-int arr[MAXN];			 // original array 
-int block[SQRSIZE];		 // decomposed array 
-int blk_sz;					 // block size 
+#define MAXN 100005
+#define SQRSIZE 316 
+
+int arr[MAXN];
+int block[SQRSIZE][100005];
+int blk_sz; 
 
 void update(int idx, int val) { 
 	int blockNumber = idx / blk_sz; 
-	block[blockNumber] += val - arr[idx]; 
+	block[blockNumber][val]++;
+	if(block[blockNumber][arr[idx]] > 0)
+		block[blockNumber][arr[idx]]--; 
 	arr[idx] = val; 
 } 
 
-// Time Complexity : O(sqrt(n)) 
-int query(int l, int r) { 
+int query(int l, int r,int x) { 
 	int sum = 0; 
 	while (l<r and l%blk_sz!=0 and l!=0) { 
-		// traversing first block in range 
-		sum += arr[l]; 
+		if(arr[l] != x)
+			sum++;
 		l++; 
 	} 
-	while (l+blk_sz <= r){ 
-		// traversing completely overlapped blocks in range 
-		sum += block[l/blk_sz]; 
+	while (l+blk_sz <= r) { 
+		sum = sum + abs(block[l/blk_sz][x] - blk_sz); 
 		l += blk_sz; 
 	} 
-	while (l<=r) { 
-		// traversing last block in range 
-		sum += arr[l];
+	while (l<=r){
+		if(arr[l] != x) 
+			sum++; 
 		l++; 
 	} 
 	return sum; 
+} 
 
-}
-
-
-// Fills values in input[] 
 void preprocess(int input[], int n){ 
-	// initiating block pointer 
 	int blk_idx = -1; 
-
-	// calculating size of block 
 	blk_sz = sqrt(n); 
-
-	// building the decomposed array 
 	for (int i=0; i<n; i++){ 
 		arr[i] = input[i]; 
 		if (i%blk_sz == 0){ 
-			// entering next block 
-			// incementing block pointer 
 			blk_idx++; 
-		} 
-		block[blk_idx] += arr[i]; 
+		}
+		block[blk_idx][arr[i]]++;  
 	} 
 } 
 
-// Driver code 
 int main(){ 
+	IOS
+		int n,m;
+	cin >> n >> m;
+	int v[n];
+	for(int i = 0 ; i < n ; ++i)		
+		cin >> v[i];
 
-	int input[100005];
-	int n,q,c,l,r,num;
-	while(cin >> n >> q){
-		memset(input,0,sizeof(input));
-		memset(arr,0,sizeof(arr));
-		memset(block,0,sizeof(block));
-		for(int i = 0; i < n ; ++i)
-			cin >> input[i];
-		preprocess(input, n);
-		for(int i = 0 ; i < q ; ++i){
-			cin >> c;
-			if(c == 1){
-				cin >> l >> num;
-				update(l-1, num); 
-			}
-			else{
-				cin >> l >> r >> diff;		
-				cont = 0;
-				query(l-1,r-1);
-				cout << cont << endl;	
-			}
+	memset(&block,0,sizeof(block));
+	preprocess(v, n); 
+	int x,y,w,o;	
+	while(m--){	
+		cin >> o;
+		if(o == 1){
+			cin >> x >> w;
+			update(x-1,w);
+		}
+		else{
+			cin >> x >> y >> w;
+			cout <<query(x-1, y-1,w) << '\n'; 
 		}
 	}
 	return 0; 
 } 
+
