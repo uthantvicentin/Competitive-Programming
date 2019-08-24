@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-//teste
+
 using namespace std;
 
 void BubbleSort(int *A, int N);
